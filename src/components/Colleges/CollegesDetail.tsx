@@ -11,7 +11,7 @@ const CollegeDetail: React.FC = () => {
 
     if (!college) {
         return (
-            <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 p-6 text-center">
+            <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 p-6 text-center bg-background">
                 <h1 className="text-2xl font-bold tracking-tight">College Not Found</h1>
                 <p className="max-w-md text-sm text-muted-foreground">
                     The college you are looking for does not exist or has been removed.
@@ -22,25 +22,26 @@ const CollegeDetail: React.FC = () => {
     }
 
     return (
-        <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-background to-muted/30">
-            {/* Decorative gradient circles */}
-            <div className="pointer-events-none absolute -left-40 -top-40 h-[640px] w-[640px] rounded-full bg-gradient-to-br from-cyan-500 via-teal-400 to-teal-200 opacity-25 blur-3xl" />
-            <div className="pointer-events-none absolute -right-48 top-16 h-[660px] w-[660px] rounded-full bg-gradient-to-tr from-pink-400 via-rose-300 to-orange-200 opacity-25 blur-3xl" />
+        <div className="min-h-screen bg-background relative">
+            {/* Back Button in top left */}
+            <div className="absolute top-6 left-6 z-10">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    asChild
+                    className="gap-1 font-bold text-primary hover:text-primary/90 flex items-center"
+                >
+                    <Link to="/colleges">
+                        <ArrowLeft className="w-5 h-5" />
+                        Back
+                    </Link>
+                </Button>
+            </div>
 
-            <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-10">
-                {/* Back button */}
-                <div className="mb-6">
-                    <Button variant="ghost" size="sm" asChild className="gap-1">
-                        <Link to="/colleges">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back
-                        </Link>
-                    </Button>
-                </div>
-
+            <div className="mx-auto max-w-7xl px-4 py-10 sm:px-10">
                 {/* Header */}
                 <header className="text-center space-y-4">
-                    <h1 className="text-3xl font-bold tracking-tight text-orange-500 sm:text-4xl">
+                    <h1 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
                         {college.title}
                     </h1>
                     {college.subtitle && (
@@ -56,11 +57,11 @@ const CollegeDetail: React.FC = () => {
                 {/* External Links */}
                 {college.links.length > 0 && (
                     <section className="mt-12 space-y-6">
-                        <h2 className="text-center text-2xl font-bold text-orange-500">
+                        <h2 className="text-center text-2xl font-bold text-primary">
                             External Links
                         </h2>
                         <div className="flex flex-wrap justify-center gap-5">
-                            {college.links.map(l => (
+                            {college.links.map((l) => (
                                 <ExternalLinkPill key={l.label} label={l.label} href={l.url} />
                             ))}
                         </div>
@@ -70,7 +71,7 @@ const CollegeDetail: React.FC = () => {
                 {/* Degrees */}
                 {college.degrees.length > 0 && (
                     <section className="mt-14 space-y-6 pb-16">
-                        <h2 className="text-center text-2xl font-bold text-orange-500">
+                        <h2 className="text-center text-2xl font-bold text-primary">
                             Degrees Available
                         </h2>
                         <DegreeGrid degrees={college.degrees} />
@@ -90,14 +91,14 @@ function ExternalLinkPill({ label, href }: { label: string; href: string }) {
             rel={external ? "noopener noreferrer" : undefined}
             className="
         relative flex items-center justify-center
-        rounded-full bg-orange-50 px-10 py-2 text-sm font-medium
-        text-orange-600 shadow-sm ring-1 ring-orange-200/70
-        transition-all hover:bg-orange-100 hover:text-orange-700
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400
+        rounded-full bg-primary/10 px-10 py-2 text-sm font-medium
+        text-primary shadow-sm ring-1 ring-primary/30
+        transition-all hover:bg-primary/20 hover:text-primary
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
       "
         >
             {label}
-            <span className="pointer-events-none absolute right-0 top-0 h-4 w-4 rounded-bl-full bg-[#6b2d00]" />
+
         </a>
     )
 }
@@ -113,7 +114,7 @@ function DegreeGrid({ degrees }: { degrees: string[] }) {
         mx-auto
       "
         >
-            {degrees.map(d => (
+            {degrees.map((d) => (
                 <DegreePill key={d} label={d} />
             ))}
         </div>
@@ -125,13 +126,12 @@ function DegreePill({ label }: { label: string }) {
         <div
             className="
         relative flex items-center justify-center
-        rounded-full bg-orange-50 px-4 py-2 text-xs font-medium
-        text-neutral-700 shadow-sm ring-1 ring-orange-200/60
-        transition-colors hover:bg-orange-100
+        rounded-full bg-muted px-4 py-2 text-xs font-medium
+        text-foreground shadow-sm ring-1 ring-border
+        transition-colors hover:bg-accent hover:text-accent-foreground
       "
         >
             {label}
-            <span className="pointer-events-none absolute right-0 top-0 h-4 w-4 rounded-bl-full bg-[#6b2d00]" />
         </div>
     )
 }

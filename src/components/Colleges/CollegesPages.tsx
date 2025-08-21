@@ -6,8 +6,6 @@ import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { Link } from "react-router-dom"
 
-const MIN_CARD_HEIGHT = "min-h-[430px]"
-
 const CollegesUniform: React.FC = () => {
   const [search, setSearch] = React.useState("")
 
@@ -16,8 +14,9 @@ const CollegesUniform: React.FC = () => {
   )
 
   return (
-    <div className="flex flex-col min-h-screen p-6 space-y-8">
-      <div className="relative max-w-md">
+    <div className="flex flex-col min-h-screen px-6 py-4">
+      {/* Search Bar */}
+      <div className="relative max-w-md mb-6">
         <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           type="search"
@@ -29,51 +28,59 @@ const CollegesUniform: React.FC = () => {
         />
       </div>
 
+      {/* Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filtered.map(college => (
           <Card
             key={college.slug}
-            className={`
-              group flex flex-col overflow-hidden
-              rounded-xl border shadow-sm
-              transition-all duration-300
-              hover:shadow-lg hover:-translate-y-0.5
-              focus-within:shadow-lg focus-within:-translate-y-0.5
-              ${MIN_CARD_HEIGHT}
-            `}
+            className="
+    group flex flex-col overflow-hidden
+    rounded-xl border shadow-sm
+    transition-all duration-300
+    hover:shadow-lg hover:-translate-y-0.5
+    focus-within:shadow-lg focus-within:-translate-y-0.5
+    h-[420px]
+  "
           >
-            <div className="relative w-full aspect-[4/3] overflow-hidden">
+            {/* Image */}
+            <div className="relative w-full h-[180px]">
               {college.image && (
-                <img
-                  src={college.image}
-                  alt={college.title}
-                  className="
-                    h-full w-full object-cover
-                    transition-transform duration-700
-                    group-hover:scale-[1.06] group-focus-within:scale-[1.06]
-                  "
-                  loading="lazy"
-                />
+                <div className="relative w-full h-64 rounded-t-xl overflow-hidden group">
+                  <img
+                    src={college.image}
+                    alt={college.title}
+                    className="
+      w-full h-full object-cover object-top
+      transition-transform duration-700
+      group-hover:scale-[1.06] group-focus-within:scale-[1.06]
+    "
+                    loading="lazy"
+                  />
+                </div>
+
               )}
               <div
                 className="
-                  pointer-events-none absolute inset-0
-                  bg-black/0 group-hover:bg-black/15 group-focus-within:bg-black/15
-                  transition-colors duration-500
-                "
+        pointer-events-none absolute inset-0
+        bg-black/0 group-hover:bg-black/15 group-focus-within:bg-black/15
+        transition-colors duration-500
+      "
               />
             </div>
 
-            <CardContent className="flex flex-col items-center text-center gap-3 px-6 pt-6 pb-4">
-              <CardTitle className="text-base font-semibold sm:text-lg">
+
+            {/* Content */}
+            <CardContent className="flex flex-col items-center text-center gap-3 px-6 pt-4 pb-2 flex-grow">
+              <CardTitle className="text-base font-semibold sm:text-lg line-clamp-2">
                 {college.title}
               </CardTitle>
-              <CardDescription className="text-sm leading-snug text-muted-foreground">
+              <CardDescription className="text-sm leading-snug text-muted-foreground line-clamp-3">
                 {college.shortDescription}
               </CardDescription>
             </CardContent>
 
-            <CardFooter className="mt-auto flex justify-center px-6 pb-6 pt-0">
+            {/* Footer */}
+            <CardFooter className="mt-auto flex justify-center px-6 pb-4 pt-0">
               <Button asChild size="sm" variant="default" aria-label={`More about ${college.title}`}>
                 <Link to={`/colleges/${college.slug}`}>More</Link>
               </Button>
@@ -81,6 +88,7 @@ const CollegesUniform: React.FC = () => {
           </Card>
         ))}
 
+        {/* Empty State */}
         {filtered.length === 0 && (
           <div className="col-span-full flex flex-col items-center gap-4 py-20 text-center">
             <p className="text-sm text-muted-foreground">No colleges found.</p>
@@ -92,6 +100,7 @@ const CollegesUniform: React.FC = () => {
       </div>
     </div>
   )
+
 }
 
 export default CollegesUniform
