@@ -107,20 +107,22 @@ const Sidebar = () => {
             </div>
 
             {/* Bottom user section (always at screen bottom) */}
-            <div
-                className={`absolute bottom-0 left-0 right-0 flex items-center justify-between bg-muted/40 p-3 border-t border-border transition-all duration-300 ${isCollapsed ? "flex-col gap-2 text-center" : ""
-                    }`}
-            >
-                <div>
-                    {!isCollapsed && (
-                        <>
-                            <p className="font-semibold">M SamiUllah</p>
-                            <p className="text-sm text-muted-foreground">Admin</p>
-                        </>
-                    )}
-                </div> 
-                 <AccountDropdown />
+            <div className="flex flex-col min-h-screen">
+                {/* Page Content */}
+                <main className="flex-1 p-6">
+                    {/* all your cards / details */}
+                </main>
+
+                {/* Footer */}
+                <footer className="bg-muted/40 p-3 border-t border-border flex items-center justify-between">
+                    <div>
+                        <p className="font-semibold">M SamiUllah</p>
+                        <p className="text-sm text-muted-foreground">Admin</p>
+                    </div>
+                    <AccountDropdown />
+                </footer>
             </div>
+
         </div>
     )
 }

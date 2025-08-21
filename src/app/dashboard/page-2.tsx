@@ -34,7 +34,7 @@ export default function DashboardLayout() {
                 {/* Header */}
                 <SiteHeader />
 
-                {/* Main content */}
+                {/* Main xcontent */}
                 <div className="flex flex-1 flex-col overflow-auto h-full bg-white">
                     <div className="flex flex-1 flex-col">
                         <Outlet />
@@ -50,8 +50,6 @@ export default function DashboardLayout() {
                         )}
                     </div>
                 </div>
-
-
             </SidebarInset>
         </SidebarProvider>
     )
