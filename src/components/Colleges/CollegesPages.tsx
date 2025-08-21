@@ -33,39 +33,37 @@ const CollegesUniform: React.FC = () => {
         {filtered.map(college => (
           <Card
             key={college.slug}
+            size="compact"
             className="
-    group flex flex-col overflow-hidden
-    rounded-xl border shadow-sm
+    group overflow-hidden
     transition-all duration-300
     hover:shadow-lg hover:-translate-y-0.5
     focus-within:shadow-lg focus-within:-translate-y-0.5
-    h-[420px]
   "
           >
             {/* Image */}
-            <div className="relative w-full h-[180px]">
+            <div className="relative w-full h-[160px] overflow-hidden rounded-t-xl">
               {college.image && (
-                <div className="relative w-full h-64 rounded-t-xl overflow-hidden group">
+                <>
                   <img
                     src={college.image}
                     alt={college.title}
                     className="
-      w-full h-full object-cover object-top
+      w-full h-full object-cover object-center
       transition-transform duration-700
       group-hover:scale-[1.06] group-focus-within:scale-[1.06]
     "
                     loading="lazy"
                   />
-                </div>
-
-              )}
-              <div
-                className="
+                  <div
+                    className="
         pointer-events-none absolute inset-0
         bg-black/0 group-hover:bg-black/15 group-focus-within:bg-black/15
         transition-colors duration-500
       "
-              />
+                  />
+                </>
+              )}
             </div>
 
 

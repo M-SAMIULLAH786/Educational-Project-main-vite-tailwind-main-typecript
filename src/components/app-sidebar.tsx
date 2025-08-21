@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
     FaHome,
     FaGraduationCap,
@@ -25,6 +25,15 @@ const Sidebar = () => {
     // Check if current route belongs to register dropdown
     const isRegisterActive = location.pathname.startsWith("/register")
 
+    // Auto-open register menu when on register pages, close when not
+    useEffect(() => {
+        if (isRegisterActive) {
+            setOpenRegisterMenu(true)
+        } else {
+            setOpenRegisterMenu(false)
+        }
+    }, [isRegisterActive])
+
     return (
         <div
             className={`   relative flex flex-col full-screen text-foreground bg-background border-r border-border transition-all duration-300 ${isCollapsed ? "w-20" : "w-64"
@@ -47,8 +56,8 @@ const Sidebar = () => {
                             key={item.name}
                             to={item.link}
                             className={`flex items-center gap-3 transition-colors p-2 rounded-lg ${location.pathname === item.link
-                                    ? "bg-primary text-primary-foreground"
-                                    : "hover:bg-accent hover:text-accent-foreground"
+                                ? "bg-primary text-primary-foreground"
+                                : "hover:bg-accent hover:text-accent-foreground"
                                 }`}
                         >
                             <span className="text-lg">{item.icon}</span>
@@ -61,8 +70,8 @@ const Sidebar = () => {
                         <button
                             onClick={() => setOpenRegisterMenu(!openRegisterMenu)}
                             className={`flex items-center justify-between w-full gap-3 transition-colors p-2 rounded-lg ${isRegisterActive
-                                    ? "bg-primary text-primary-foreground"
-                                    : "hover:bg-accent hover:text-accent-foreground"
+                                ? "bg-primary text-primary-foreground"
+                                : "hover:bg-accent hover:text-accent-foreground"
                                 }`}
                         >
                             <div className="flex items-center gap-3">
@@ -85,8 +94,8 @@ const Sidebar = () => {
                                 <Link
                                     to="/register-degree"
                                     className={`px-2 py-1 rounded-lg transition-colors ${location.pathname === "/register-degree"
-                                            ? "bg-primary text-primary-foreground"
-                                            : "hover:bg-accent hover:text-accent-foreground"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "hover:bg-accent hover:text-accent-foreground"
                                         }`}
                                 >
                                     Register Degree
@@ -94,8 +103,8 @@ const Sidebar = () => {
                                 <Link
                                     to="/register-college"
                                     className={`px-2 py-1 rounded-lg transition-colors ${location.pathname === "/register-college"
-                                            ? "bg-primary text-primary-foreground"
-                                            : "hover:bg-accent hover:text-accent-foreground"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "hover:bg-accent hover:text-accent-foreground"
                                         }`}
                                 >
                                     Register College
