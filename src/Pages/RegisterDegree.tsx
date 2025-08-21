@@ -17,7 +17,7 @@ const RegisterDegree = () => {
         <h2 className="text-2xl font-bold mb-6 text-center">Register Degree</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block font-medium mb-1">Degree Name</label>
+            <label className="block font-medium mb-1">Degreen Name</label>
             <input
               type="text"
               className="w-full border rounded px-3 py-2"
