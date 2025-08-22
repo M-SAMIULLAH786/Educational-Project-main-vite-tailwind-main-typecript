@@ -10,6 +10,7 @@ import RegisterCollegePage from "./Pages/RegisterCollege"
 import LoginPage from "./app/Login/page"
 import SuperAdmin from "./Pages/SuperAdmin"
 import Calendar02 from "./components/calendar-02"
+import AccountInfo from "./pages/AccountInfo"
 import RequireAuth from "./components/RequireAuth"
 
 // (Optional) If you have a dashboard home component you can import it and add an index route:
@@ -48,6 +49,9 @@ function App() {
 
                     {/* Admin */}
                     <Route path="super-admin" element={<SuperAdmin />} />
+
+                    {/* Account Management */}
+                    <Route path="account" element={<AccountInfo />} />
 
                     {/* You can add more nested protected routes here */}
                 </Route>
