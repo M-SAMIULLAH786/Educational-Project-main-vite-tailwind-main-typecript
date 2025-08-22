@@ -137,7 +137,6 @@ export const colleges: College[] = [
             "A-Level Prep"
         ]
     }
-    // Add the rest of your colleges here following the same shape
 ]
 
 export function getCollege(slug: string) {

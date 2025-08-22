@@ -12,7 +12,6 @@ export default function LoginPage() {
         if (isAuthenticated()) {
             navigate("/", { replace: true })
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
@@ -30,7 +29,6 @@ export default function LoginPage() {
             </div>
 
             <div className="relative hidden lg:block">
-                {/* Blurred app preview + loading effect */}
                 <div className="absolute inset-0 overflow-hidden">
                     <div className="absolute inset-0 pointer-events-none">
                         <div className="h-full w-full filter blur-sm scale-105">
@@ -56,7 +54,6 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                {/* fallback image (kept for accessibility) */}
                 <img
                     src="https://ui.shadcn.com/placeholder.svg"
                     alt="Login Background"
@@ -65,7 +62,6 @@ export default function LoginPage() {
                 />
             </div>
 
-            {/* inline fallback CSS for spin (applies if Tailwind animate-spin missing) */}
             <style>{`
         @keyframes cp-spin { to { transform: rotate(360deg); } }
         .custom-spin { animation: cp-spin 1s linear infinite; transform-origin: center; }

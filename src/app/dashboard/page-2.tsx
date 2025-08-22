@@ -27,14 +27,13 @@ export default function DashboardLayout() {
                 } as React.CSSProperties
             }
         >
-            {/* Sidebar */}
+            
             <AppSidebar />
 
             <SidebarInset>
-                {/* Header */}
+                
                 <SiteHeader />
 
-                {/* Main xcontent */}
                 <div className="flex flex-1 flex-col overflow-auto h-full bg-white">
                     <div className="flex flex-1 flex-col">
                         <Outlet />

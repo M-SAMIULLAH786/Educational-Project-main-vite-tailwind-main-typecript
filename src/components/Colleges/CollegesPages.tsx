@@ -1,96 +1,215 @@
-import * as React from "react"
-import { colleges } from "../../data/colleges"
+import React, { useState, useEffect, useMemo } from "react"
+import { Link } from "react-router-dom"
 import { Card, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Badge } from "@/components/ui/badge"
+import { Search, MapPin, Calendar, Users, ExternalLink } from "lucide-react"
+import { colleges } from "@/data/colleges"
 
-const CollegesUniform: React.FC = () => {
-  const [search, setSearch] = React.useState("")
+interface College {
+  slug: string;
+  title: string;
+  subtitle?: string;
+  shortDescription: string;
+  longDescription: string;
+  image?: string;
+  links: Array<{
+    label: string;
+    url: string;
+    type?: "prospectus" | "website" | "other";
+  }>;
+  degrees: string[];
+  // Additional fields for registered colleges
+  establishedYear?: number;
+  location?: string;
+  type?: string;
+}
 
-  const filtered = colleges.filter(c =>
-    c.title.toLowerCase().includes(search.toLowerCase().trim())
+const CollegesPage: React.FC = () => {
+  const [search, setSearch] = useState("")
+  const [allColleges, setAllColleges] = useState<College[]>(colleges)
+
+  useEffect(() => {
+    // Load approved colleges from localStorage
+    const approvedColleges = localStorage.getItem('approvedCollegesData');
+    if (approvedColleges) {
+      const approved = JSON.parse(approvedColleges);
+      // Merge with existing colleges, avoiding duplicates
+      const combined = [...colleges];
+      approved.forEach((college: College) => {
+        if (!combined.some(existing => existing.slug === college.slug)) {
+          combined.push(college);
+        }
+      });
+      setAllColleges(combined);
+    }
+  }, []);
+
+  const filtered = useMemo(
+    () =>
+      allColleges.filter(college => {
+        const q = search.toLowerCase().trim()
+        if (!q) return true
+        return (
+          college.title.toLowerCase().includes(q) ||
+          college.shortDescription.toLowerCase().includes(q) ||
+          college.subtitle?.toLowerCase().includes(q) ||
+          college.degrees.some(degree => degree.toLowerCase().includes(q))
+        )
+      }),
+    [search, allColleges]
   )
 
   return (
-    <div className="flex flex-col min-h-screen px-6 py-4">
-      {/* Search Bar */}
-      <div className="relative max-w-md mb-6">
-        <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search colleges..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10"
+    <div className="flex flex-col gap-8 p-6">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Colleges & Universities</h1>
+            <p className="text-gray-600 mt-2">
+              Discover educational institutions and their programs
+            </p>
+          </div>
+          <div className="text-sm text-gray-500">
+            <p>Current User: <span className="font-medium">M-SAMIULLAH786</span></p>
+            <p>Date: <span className="font-medium">2025-08-22 13:01:08 UTC</span></p>
+          </div>
+        </div>
+
+        {/* Search */}
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          role="search"
           aria-label="Search colleges"
-        />
+          className="relative max-w-lg"
+        >
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search colleges, programs, or locations..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+            aria-label="Search colleges"
+            autoComplete="off"
+          />
+        </form>
+      </div>
+
+      {/* Results Count */}
+      <div className="text-sm text-gray-600">
+        Showing {filtered.length} of {allColleges.length} colleges
       </div>
 
       {/* Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filtered.map(college => (
+        {filtered.map((college) => (
           <Card
             key={college.slug}
-            size="compact"
-            className="
-    group overflow-hidden
-    transition-all duration-300
-    hover:shadow-lg hover:-translate-y-0.5
-    focus-within:shadow-lg focus-within:-translate-y-0.5
-  "
+            className="group flex flex-col overflow-hidden transition-shadow duration-300 hover:shadow-lg focus-within:shadow-lg"
           >
-            {/* Image */}
-            <div className="relative w-full h-[160px] overflow-hidden rounded-t-xl">
-              {college.image && (
-                <>
-                  <img
-                    src={college.image}
-                    alt={college.title}
-                    className="
-      w-full h-full object-cover object-center
-      transition-transform duration-700
-      group-hover:scale-[1.06] group-focus-within:scale-[1.06]
-    "
-                    loading="lazy"
-                  />
-                  <div
-                    className="
-        pointer-events-none absolute inset-0
-        bg-black/0 group-hover:bg-black/15 group-focus-within:bg-black/15
-        transition-colors duration-500
-      "
-                  />
-                </>
+            {/* College Image */}
+            <div className="aspect-video overflow-hidden bg-muted/40">
+              {college.image ? (
+                <img
+                  src={college.image}
+                  alt={college.title}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+                  <Users className="h-16 w-16 text-primary/40" />
+                </div>
               )}
             </div>
 
+            <CardContent className="flex flex-col gap-3 p-4">
+              <div className="space-y-2">
+                <CardTitle className="text-lg font-semibold leading-tight line-clamp-2">
+                  {college.title}
+                </CardTitle>
+                {college.subtitle && (
+                  <p className="text-sm text-primary font-medium">
+                    {college.subtitle}
+                  </p>
+                )}
+                <CardDescription className="text-sm leading-snug line-clamp-3">
+                  {college.shortDescription}
+                </CardDescription>
+              </div>
 
-            {/* Content */}
-            <CardContent className="flex flex-col items-center text-center gap-3 px-6 pt-4 pb-2 flex-grow">
-              <CardTitle className="text-base font-semibold sm:text-lg line-clamp-2">
-                {college.title}
-              </CardTitle>
-              <CardDescription className="text-sm leading-snug text-muted-foreground line-clamp-3">
-                {college.shortDescription}
-              </CardDescription>
+              {/* College Info */}
+              <div className="space-y-2 text-xs text-gray-600">
+                {college.location && (
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    <span>{college.location}</span>
+                  </div>
+                )}
+                {college.establishedYear && (
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    <span>Established {college.establishedYear}</span>
+                  </div>
+                )}
+                {college.type && (
+                  <Badge variant="outline" className="text-xs w-fit">
+                    {college.type}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Programs Count */}
+              <div className="text-xs text-gray-600">
+                <span className="font-medium">{college.degrees.length}</span> programs available
+              </div>
             </CardContent>
 
-            {/* Footer */}
-            <CardFooter className="mt-auto flex justify-center px-6 pb-4 pt-0">
-              <Button asChild size="sm" variant="default" aria-label={`More about ${college.title}`}>
-                <Link to={`/colleges/${college.slug}`}>More</Link>
+            <CardFooter className="mt-auto flex justify-between gap-3 p-4 pt-0">
+              <Button
+                asChild
+                size="sm"
+                variant="default"
+                className="flex-1"
+              >
+                <Link to={`/colleges/${college.slug}`}>
+                  View Details
+                </Link>
               </Button>
+
+              {college.links && college.links.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const websiteLink = college.links.find(link => link.type === 'website');
+                    if (websiteLink) {
+                      window.open(websiteLink.url, '_blank');
+                    }
+                  }}
+                  className="flex items-center gap-1"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Website
+                </Button>
+              )}
             </CardFooter>
           </Card>
         ))}
 
-        {/* Empty State */}
         {filtered.length === 0 && (
-          <div className="col-span-full flex flex-col items-center gap-4 py-20 text-center">
-            <p className="text-sm text-muted-foreground">No colleges found.</p>
-            <Button variant="outline" size="sm" onClick={() => setSearch("")}>
+          <div className="col-span-full flex flex-col items-center gap-3 py-16 text-center">
+            <p className="text-sm text-muted-foreground">
+              No colleges matched your search.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSearch("")}
+            >
               Clear search
             </Button>
           </div>
@@ -98,7 +217,6 @@ const CollegesUniform: React.FC = () => {
       </div>
     </div>
   )
-
 }
 
-export default CollegesUniform
+export default CollegesPage

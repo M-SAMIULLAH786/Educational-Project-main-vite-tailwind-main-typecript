@@ -58,15 +58,14 @@ export async function register(
 ): Promise<StoredUser> {
   await wait();
 
-  // ✅ Password validation (min 8 chars, at least one special char)
   const passwordRegex = /^(?=.*[^A-Za-z0-9]).{8,}$/;
 
   if (!name || !email || !password || !email.includes("@")) {
-    throw new Error("Invalid registration data");
+    throw new Error("Inva registration data");
   }
   if (!passwordRegex.test(password)) {
     throw new Error(
-      "Password must be at least 8 characters and contain a special character"
+      "Password must be at least 8 "
     );
   }
 
@@ -76,7 +75,7 @@ export async function register(
     : [];
 
   if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
-    throw new Error("Account already exists");
+    throw new Error("Account already ");
   }
 
   users.push({ name, email, password });
@@ -95,10 +94,6 @@ export function logout(): void {
   localStorage.removeItem(SESSION_KEY);
 }
 
-/**
- * Create or find a user from an OAuth provider (Google) and create a session.
- * Used for social sign-ins where we only have name+email.
- */
 export async function socialSignIn(
   name: string,
   email: string
@@ -113,7 +108,6 @@ export async function socialSignIn(
 
   let found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
   if (!found) {
-    // store a placeholder password for provider users
     const placeholderPassword = "__oauth_google__";
     found = {
       name: name || email.split("@")[0],

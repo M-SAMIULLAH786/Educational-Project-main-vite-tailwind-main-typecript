@@ -6,7 +6,7 @@ export function SectionCards() {
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 xl:grid-cols-4 lg:gap-6 lg:px-6">
       {/* Total Revenue */}
-      <Card className="@container/card">
+      <Card className="@container/card min-h-[180px]">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardDescription>Total Revenue</CardDescription>
