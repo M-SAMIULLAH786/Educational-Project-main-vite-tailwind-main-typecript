@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Users, GraduationCap, University, Settings, Clock, CheckCircle, XCircle, Eye, X, MapPin, Phone, Mail, Globe, Calendar, Building, FileText, ExternalLink, TrendingUp, TrendingDown } from "lucide-react";
+import { useNavigate } from 'react-router-dom'
+import { Users, GraduationCap, University, Settings, Clock, CheckCircle, XCircle, Eye, X, MapPin, Phone, Mail, Globe, Calendar, Building, FileText, ExternalLink, TrendingUp, TrendingDown, LogOut, Shield } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -117,7 +118,7 @@ const StatCard: React.FC<StatCardProps> = ({
                     {description} {getGrowthIcon()}
                 </div>
                 <div className="text-muted-foreground">
-                    Current Date: 2025-08-22 13:01:08 UTC
+                    Current Date: 2025-08-23 10:35:34 UTC
                 </div>
             </CardFooter>
         </Card>
@@ -125,6 +126,8 @@ const StatCard: React.FC<StatCardProps> = ({
 };
 
 const SuperAdmin = () => {
+    const navigate = useNavigate()
+
     const [stats, setStats] = useState<AdminStats>({
         totalColleges: 5, // Base colleges from your data
         pendingColleges: 0,
@@ -143,6 +146,38 @@ const SuperAdmin = () => {
     const [rejectionReason, setRejectionReason] = useState('');
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [itemToReject, setItemToReject] = useState<{ type: 'college' | 'degree', id: string } | null>(null);
+
+    // Check super admin authentication
+    useEffect(() => {
+        const superAdminSession = localStorage.getItem('SUPER_ADMIN_SESSION')
+        if (!superAdminSession) {
+            navigate('/super-admin-login')
+            return
+        }
+
+        try {
+            const session = JSON.parse(superAdminSession)
+            const loginTime = new Date(session.loginTime)
+            const now = new Date()
+            const hoursSinceLogin = (now.getTime() - loginTime.getTime()) / (1000 * 60 * 60)
+
+            // Session expires after 8 hours
+            if (hoursSinceLogin > 8) {
+                localStorage.removeItem('SUPER_ADMIN_SESSION')
+                toast({
+                    title: "Session Expired",
+                    description: "Please authenticate again.",
+                    variant: "destructive"
+                })
+                navigate('/super-admin-login')
+                return
+            }
+        } catch {
+            localStorage.removeItem('SUPER_ADMIN_SESSION')
+            navigate('/super-admin-login')
+            return
+        }
+    }, [navigate])
 
     useEffect(() => {
         // Load data from localStorage
@@ -185,6 +220,15 @@ const SuperAdmin = () => {
         // Update approved colleges to colleges data
         updateCollegesData(colleges.filter((c: RegisteredCollege) => c.status === 'approved'));
     }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('SUPER_ADMIN_SESSION')
+        toast({
+            title: "Logged Out",
+            description: "Super Admin session ended.",
+        })
+        navigate('/login')
+    }
 
     const updateCollegesData = (approvedColleges: RegisteredCollege[]) => {
         // This would normally update your colleges data file
@@ -329,7 +373,8 @@ const SuperAdmin = () => {
             <header className="mb-10">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                        <h1 className="text-4xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                            <Shield className="h-8 w-8 text-purple-600" />
                             Super Admin Dashboard
                         </h1>
                         <p className="text-gray-600 text-lg">
@@ -337,8 +382,25 @@ const SuperAdmin = () => {
                         </p>
                     </div>
                     <div className="text-right text-sm text-gray-500">
-                        <p>Current User: <span className="font-medium">M-SAMIULLAH786</span></p>
-                        <p>Last Updated: <span className="font-medium">2025-08-22 13:01:08 UTC</span></p>
+                        <div className="flex items-center gap-4">
+                            <div>
+                                <p>Current User: <span className="font-medium">M-SAMIULLAH786</span></p>
+                                <p>Last Updated: <span className="font-medium">2025-08-23 10:35:34 UTC</span></p>
+                                <Badge variant="outline" className="text-purple-600 border-purple-600 mt-1">
+                                    <Shield className="h-3 w-3 mr-1" />
+                                    Super Admin
+                                </Badge>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleLogout}
+                                className="text-red-600 border-red-600 hover:bg-red-50"
+                            >
+                                <LogOut className="h-4 w-4 mr-2" />
+                                Logout
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -357,7 +419,7 @@ const SuperAdmin = () => {
                     title="Pending College Approvals"
                     value={stats.pendingColleges.toString()}
                     highlight={stats.pendingColleges > 0}
-                    description={stats.pendingColleges > 0 ? "No pending approvals" : "All caught up"}
+                    description={stats.pendingColleges > 0 ? "Pending approvals waiting" : "All caught up"}
                     growthValue={stats.pendingColleges > 0 ? -5.2 : 0}
                 />
                 <StatCard
@@ -375,8 +437,6 @@ const SuperAdmin = () => {
                     growthValue={stats.userGrowth}
                 />
             </section>
-
-            {/* Rest of the component remains the same with college and degree management sections */}
 
             {/* College Registrations Management */}
             <section className="mb-12">
@@ -684,6 +744,36 @@ const SuperAdmin = () => {
                 </div>
             </section>
 
+            {/* Quick Actions */}
+            <section className="mb-12">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Quick Actions</h2>
+                <div className="grid gap-4 md:grid-cols-3">
+                    <Card className="shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                        <CardContent className="p-6 text-center">
+                            <Settings className="h-12 w-12 mx-auto mb-4 text-blue-600" />
+                            <h3 className="font-semibold text-lg mb-2">System Settings</h3>
+                            <p className="text-gray-600 text-sm">Configure platform settings and preferences</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                        <CardContent className="p-6 text-center">
+                            <Users className="h-12 w-12 mx-auto mb-4 text-green-600" />
+                            <h3 className="font-semibold text-lg mb-2">User Management</h3>
+                            <p className="text-gray-600 text-sm">Manage user accounts and permissions</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                        <CardContent className="p-6 text-center">
+                            <FileText className="h-12 w-12 mx-auto mb-4 text-purple-600" />
+                            <h3 className="font-semibold text-lg mb-2">Reports</h3>
+                            <p className="text-gray-600 text-sm">Generate and export system reports</p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </section>
+
             {/* Rejection Reason Modal */}
             {showRejectionModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -727,8 +817,357 @@ const SuperAdmin = () => {
                 </div>
             )}
 
-            {/* College Detail Modal and Degree Detail Modal - Same as before but with rejection reason display */}
+            {/* College Detail Modal */}
+            {selectedCollege && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">{selectedCollege.title}</h2>
+                                {selectedCollege.subtitle && (
+                                    <p className="text-gray-600 mt-1">{selectedCollege.subtitle}</p>
+                                )}
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedCollege(null)}
+                            >
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </div>
 
+                        <div className="p-6 space-y-8">
+                            {/* Status Badge */}
+                            <div className="flex justify-between items-center">
+                                <Badge
+                                    variant={selectedCollege.status === 'pending' ? 'secondary' :
+                                        selectedCollege.status === 'approved' ? 'default' : 'destructive'}
+                                    className="text-sm px-3 py-1"
+                                >
+                                    {selectedCollege.status.toUpperCase()}
+                                </Badge>
+                                <p className="text-sm text-gray-500">
+                                    Registered: {formatDate(selectedCollege.registeredAt)}
+                                </p>
+                            </div>
+
+                            {/* Rejection Reason */}
+                            {selectedCollege.status === 'rejected' && selectedCollege.rejectionReason && (
+                                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                                    <h4 className="font-semibold text-red-800 mb-2">Rejection Reason:</h4>
+                                    <p className="text-red-700">{selectedCollege.rejectionReason}</p>
+                                </div>
+                            )}
+
+                            {/* College Image */}
+                            {selectedCollege.image && (
+                                <div className="w-full h-48 bg-gray-200 rounded-lg overflow-hidden">
+                                    <img
+                                        src={selectedCollege.image}
+                                        alt={selectedCollege.title}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Basic Information */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <Building className="h-5 w-5 text-gray-500" />
+                                        <div>
+                                            <p className="text-sm text-gray-600">Institution Type</p>
+                                            <p className="font-medium">{selectedCollege.type}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-5 w-5 text-gray-500" />
+                                        <div>
+                                            <p className="text-sm text-gray-600">Established</p>
+                                            <p className="font-medium">{selectedCollege.establishedYear}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="h-5 w-5 text-gray-500" />
+                                        <div>
+                                            <p className="text-sm text-gray-600">Location</p>
+                                            <p className="font-medium">{selectedCollege.location}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <Mail className="h-5 w-5 text-gray-500" />
+                                        <div>
+                                            <p className="text-sm text-gray-600">Email</p>
+                                            <p className="font-medium">{selectedCollege.email}</p>
+                                        </div>
+                                    </div>
+
+                                    {selectedCollege.phone && (
+                                        <div className="flex items-center gap-2">
+                                            <Phone className="h-5 w-5 text-gray-500" />
+                                            <div>
+                                                <p className="text-sm text-gray-600">Phone</p>
+                                                <p className="font-medium">{selectedCollege.phone}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {selectedCollege.website && (
+                                        <div className="flex items-center gap-2">
+                                            <Globe className="h-5 w-5 text-gray-500" />
+                                            <div>
+                                                <p className="text-sm text-gray-600">Website</p>
+                                                <a
+                                                    href={selectedCollege.website}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="font-medium text-blue-600 hover:underline"
+                                                >
+                                                    {selectedCollege.website}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Descriptions */}
+                            <div className="space-y-4">
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-2">Short Description</h3>
+                                    <p className="text-gray-700">{selectedCollege.shortDescription}</p>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-2">Detailed Description</h3>
+                                    <p className="text-gray-700 whitespace-pre-line">{selectedCollege.longDescription}</p>
+                                </div>
+                            </div>
+
+                            {/* Accreditation */}
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2">Accreditation</h3>
+                                <Badge variant="outline" className="text-sm">
+                                    {selectedCollege.accreditation}
+                                </Badge>
+                            </div>
+
+                            {/* Degrees */}
+                            {selectedCollege.degrees.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-3">Programs/Degrees Offered ({selectedCollege.degrees.length})</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedCollege.degrees.map((degree, index) => (
+                                            <Badge key={index} variant="secondary" className="text-sm">
+                                                {degree}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Additional Links */}
+                            {selectedCollege.links.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-3">Additional Links</h3>
+                                    <div className="space-y-2">
+                                        {selectedCollege.links.map((link, index) => (
+                                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <p className="font-medium">{link.label}</p>
+                                                    <Badge variant="outline" className="text-xs mt-1">
+                                                        {link.type}
+                                                    </Badge>
+                                                </div>
+                                                <a
+                                                    href={link.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:text-blue-800"
+                                                >
+                                                    <ExternalLink className="h-4 w-4" />
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            {selectedCollege.status === 'pending' && (
+                                <div className="flex gap-4 pt-6 border-t">
+                                    <Button
+                                        onClick={() => handleCollegeAction(selectedCollege.slug, 'approve')}
+                                        className="flex-1 bg-green-600 hover:bg-green-700"
+                                    >
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Approve College
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() => {
+                                            setItemToReject({ type: 'college', id: selectedCollege.slug });
+                                            setShowRejectionModal(true);
+                                            setSelectedCollege(null);
+                                        }}
+                                        className="flex-1"
+                                    >
+                                        <XCircle className="h-4 w-4 mr-2" />
+                                        Reject College
+                                    </Button>
+                                </div>
+                            )}
+
+                            {selectedCollege.status === 'rejected' && (
+                                <div className="flex gap-4 pt-6 border-t">
+                                    <Button
+                                        onClick={() => handleCollegeAction(selectedCollege.slug, 'approve')}
+                                        className="flex-1 bg-green-600 hover:bg-green-700"
+                                    >
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Re-approve College
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Degree Detail Modal */}
+            {selectedDegree && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">{selectedDegree.degree}</h2>
+                                <p className="text-gray-600 mt-1">{selectedDegree.college}</p>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedDegree(null)}
+                            >
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </div>
+
+                        <div className="p-6 space-y-6">
+                            {/* Status Badge */}
+                            <div className="flex justify-between items-center">
+                                <Badge
+                                    variant={selectedDegree.status === 'pending' ? 'secondary' :
+                                        selectedDegree.status === 'approved' ? 'default' : 'destructive'}
+                                    className="text-sm px-3 py-1"
+                                >
+                                    {selectedDegree.status.toUpperCase()}
+                                </Badge>
+                                <p className="text-sm text-gray-500">
+                                    Registered: {formatDate(selectedDegree.registeredAt)}
+                                </p>
+                            </div>
+
+                            {/* Rejection Reason */}
+                            {selectedDegree.status === 'rejected' && selectedDegree.rejectionReason && (
+                                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                                    <h4 className="font-semibold text-red-800 mb-2">Rejection Reason:</h4>
+                                    <p className="text-red-700">{selectedDegree.rejectionReason}</p>
+                                </div>
+                            )}
+
+                            {/* Degree Details */}
+                            <div className="grid gap-6">
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    {selectedDegree.department && (
+                                        <div>
+                                            <p className="text-sm text-gray-600">Department</p>
+                                            <p className="font-medium">{selectedDegree.department}</p>
+                                        </div>
+                                    )}
+                                    {selectedDegree.duration && (
+                                        <div>
+                                            <p className="text-sm text-gray-600">Duration</p>
+                                            <p className="font-medium">{selectedDegree.duration}</p>
+                                        </div>
+                                    )}
+                                    {selectedDegree.credits && (
+                                        <div>
+                                            <p className="text-sm text-gray-600">Credits</p>
+                                            <p className="font-medium">{selectedDegree.credits}</p>
+                                        </div>
+                                    )}
+                                    {selectedDegree.specialization && (
+                                        <div>
+                                            <p className="text-sm text-gray-600">Specialization</p>
+                                            <p className="font-medium">{selectedDegree.specialization}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {selectedDegree.description && (
+                                    <div>
+                                        <h3 className="text-lg font-semibold mb-2">Program Description</h3>
+                                        <p className="text-gray-700">{selectedDegree.description}</p>
+                                    </div>
+                                )}
+
+                                {selectedDegree.requirements && (
+                                    <div>
+                                        <h3 className="text-lg font-semibold mb-2">Admission Requirements</h3>
+                                        <p className="text-gray-700">{selectedDegree.requirements}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            {selectedDegree.status === 'pending' && (
+                                <div className="flex gap-4 pt-6 border-t">
+                                    <Button
+                                        onClick={() => handleDegreeAction(selectedDegree.id, 'approve')}
+                                        className="flex-1 bg-green-600 hover:bg-green-700"
+                                    >
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Approve Degree
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() => {
+                                            setItemToReject({ type: 'degree', id: selectedDegree.id });
+                                            setShowRejectionModal(true);
+                                            setSelectedDegree(null);
+                                        }}
+                                        className="flex-1"
+                                    >
+                                        <XCircle className="h-4 w-4 mr-2" />
+                                        Reject Degree
+                                    </Button>
+                                </div>
+                            )}
+
+                            {selectedDegree.status === 'rejected' && (
+                                <div className="flex gap-4 pt-6 border-t">
+                                    <Button
+                                        onClick={() => handleDegreeAction(selectedDegree.id, 'approve')}
+                                        className="flex-1 bg-green-600 hover:bg-green-700"
+                                    >
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Re-approve Degree
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

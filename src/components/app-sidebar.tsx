@@ -5,6 +5,7 @@ import {
     FaUniversity,
     FaUserShield,
     FaUpload,
+    FaSchool,
 } from "react-icons/fa"
 import { FiMenu, FiChevronDown, FiChevronRight } from "react-icons/fi"
 import { Link, useLocation } from "react-router-dom"
@@ -19,7 +20,8 @@ const Sidebar = () => {
         { name: "Home", icon: <FaHome />, link: "/" },
         { name: "Degrees", icon: <FaGraduationCap />, link: "/degrees" },
         { name: "Colleges", icon: <FaUniversity />, link: "/colleges" },
-        { name: "Super Admin", icon: <FaUserShield />, link: "/super-admin" },
+        { name: "Universities", icon: <FaSchool />, link: "/universities" },
+        { name: "Super Admin", icon: <FaUserShield />, link: "/super-admin-login" },
     ]
 
     // Check if current route belongs to register dropdown
@@ -36,7 +38,7 @@ const Sidebar = () => {
 
     return (
         <div
-            className={`   relative flex flex-col full-screen text-foreground bg-background border-r border-border transition-all duration-300 ${isCollapsed ? "w-20" : "w-64"
+            className={`relative flex flex-col full-screen text-foreground bg-background border-r border-border transition-all duration-300 ${isCollapsed ? "w-20" : "w-64"
                 }`}
         >
             {/* Top (scrollable area) */}
@@ -116,22 +118,16 @@ const Sidebar = () => {
             </div>
 
             {/* Bottom user section (always at screen bottom) */}
-            <div className="flex flex-col min-h-screen">
-                {/* Page Content */}
-                <main className="flex-1 p-6">
-                    {/* all your cards / details */}
-                </main>
-
-                {/* Footer */}
-                <footer className="bg-muted/40 p-3 border-t border-border flex items-center justify-between">
+            <div className="absolute bottom-0 left-0 right-0 bg-muted/40 p-3 border-t border-border">
+                <div className="flex items-center justify-between">
                     <div>
-                        <p className="font-semibold">M SamiUllah</p>
+                        <p className="font-semibold">M-SAMIULLAH786</p>
                         <p className="text-sm text-muted-foreground">Admin</p>
+                        <p className="text-xs text-muted-foreground">2025-08-23 11:00:32 UTC</p>
                     </div>
-                    <AccountDropdown />
-                </footer>
+                    {!isCollapsed && <AccountDropdown />}
+                </div>
             </div>
-
         </div>
     )
 }
